@@ -63,6 +63,18 @@ details::http_listener_impl::http_listener_impl(http::uri address, http_listener
     check_listener_uri(m_uri);
 }
 
+details::http_listener_impl::http_listener_impl(http::uri address, std::string regex)
+    : m_uri(std::move(address)), m_closed(true)
+{
+    check_listener_uri(m_uri);
+}
+
+details::http_listener_impl::http_listener_impl(http::uri address, std::string regex, http_listener_config config)
+    : m_uri(std::move(address)), m_config(std::move(config)), m_closed(true)
+{
+    check_listener_uri(m_uri);
+}
+
 http_listener::~http_listener()
 {
     if(m_impl)
@@ -163,6 +175,10 @@ utility::string_t details::http_listener_impl::get_supported_methods() const
         allowed += (iter->first);
     }
     return allowed;
+}
+
+bool details::http_listener_impl::matches(http::uri uri, std::smatch& smatch) {
+
 }
 
 void details::http_listener_impl::handle_trace(http_request message)

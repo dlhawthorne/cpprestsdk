@@ -15,6 +15,7 @@
 
 #include <limits>
 #include <functional>
+#include <regex>
 
 #include "cpprest/http_msg.h"
 #if !defined(_WIN32) && !defined(__cplusplus_winrt) || defined(CPPREST_FORCE_HTTP_LISTENER_ASIO)
@@ -166,6 +167,8 @@ public:
 
     _ASYNCRTIMP http_listener_impl(http::uri address);
     _ASYNCRTIMP http_listener_impl(http::uri address, http_listener_config config);
+    _ASYNCRTIMP http_listener_impl(http::uri address, std::string regex)
+    _ASYNCRTIMP http_listener_impl(http::uri address, std::string regex, http_listener_config config)
 
     _ASYNCRTIMP pplx::task<void> open();
     _ASYNCRTIMP pplx::task<void> close();
@@ -199,6 +202,7 @@ private:
     // Used to record that the listener is closed.
     bool m_closed;
     pplx::task<void> m_close_task;
+    std::basic_regex m_regex;
 };
 
 } // namespace details
@@ -290,6 +294,10 @@ public:
         m_impl->m_supported_methods[method] = handler;
     }
 
+    virtual bool matches(http::uri uri, std::smatch& smatch) {
+    	return m_impl->matches(uri, smatch);
+    }
+
     /// <summary>
     /// Get the URI of the listener.
     /// </summary>
@@ -331,6 +339,8 @@ private:
     http_listener &operator=(const http_listener &other);
 
     std::unique_ptr<details::http_listener_impl> m_impl;
+
+    std::basic_regex m_regex;
 };
 
 }}}}
